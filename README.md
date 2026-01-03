@@ -80,22 +80,22 @@ Models tested:
 ### 4. Hyperparameter Tuning
 Grid search over:
 
-* `n_estimators`: [100, 200, 300]
-* `learning_rate`: [0.01, 0.05, 0.1]
-* `max_depth`: [3, 4, 5]
+* `n_estimators`: 
+* `learning_rate`: 
+* `max_depth`: 
 
 **Best parameters:**
-* `n_estimators = 300`
-* `learning_rate = 0.05`
-* `max_depth = 4`
+* `n_estimators = `
+* `learning_rate = `
+* `max_depth = `
 
 ---
 
 ### 5. Evaluation Metrics
-* **Accuracy:** 88.9%
-* **Precision:** 92%
-* **Recall:** 78%
-* **F1-score:** 84%
+* **Accuracy:** 
+* **Precision:**
+* **Recall:** 
+* **F1-score:** 
 
 **Confusion Matrix:**
 ---
