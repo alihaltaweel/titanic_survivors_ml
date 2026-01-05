@@ -58,11 +58,16 @@ titanic-prediction/
 │   ├── train.csv
 │   └── test.csv
 │
+├── src/
+│   ├── data_loader.py
+│   └── model_trainer.py
+│
 ├── output/
 │   └── submission.csv
 │
 ├── titanic_survival_prediction.py
 ├── README.md
+├── main.py
 └── requirements.txt
 ```
 
