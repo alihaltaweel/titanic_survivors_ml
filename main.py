@@ -1,60 +1,40 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.metrics import classification_report, accuracy_score
-from src.data_loader import preprocess_titanic_data
+from sklearn.metrics import classification_report, confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-# 1. Load Data
+# Internal imports
+from src.data_loader import preprocess_titanic_data
+from src.model_trainer import build_and_tune_model
+
+# 1. Load raw data
 train_df = pd.read_csv("data/train.csv")
 test_df = pd.read_csv("data/test.csv")
-test_passenger_ids = test_df['PassengerId'] # Save for final submission
+test_ids = test_df['PassengerId']
 
-# 2. Apply Custom Engineering
+# 2. Process data using our custom loader
 train_df = preprocess_titanic_data(train_df)
 test_df = preprocess_titanic_data(test_df)
 
-# 3. Split Features and Target
+# 3. Prepare for training
 X = train_df.drop("Survived", axis=1)
 y = train_df["Survived"]
 X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# 4. Define Pipeline
-numeric_features = ['Age', 'Fare', 'Family_Size']
-numeric_transformer = Pipeline(steps=[
-    ('imputer', SimpleImputer(strategy='median')),
-    ('scaler', StandardScaler())
-])
+# 4. Build and Tune Model (Imports logic from src/model_trainer.py)
+best_model = build_and_tune_model(X_train, y_train)
 
-categorical_features = ['Pclass', 'Sex', 'Embarked', 'Title', 'Deck']
-categorical_transformer = Pipeline(steps=[
-    ('imputer', SimpleImputer(strategy='most_frequent')),
-    ('onehot', OneHotEncoder(handle_unknown='ignore'))
-])
-
-preprocessor = ColumnTransformer(
-    transformers=[
-        ('num', numeric_transformer, numeric_features),
-        ('cat', categorical_transformer, categorical_features)
-    ])
-
-# 5. Build and Train Model
-model = Pipeline(steps=[('preprocessor', preprocessor),
-                      ('classifier', RandomForestClassifier(n_estimators=100, random_state=42))])
-
-model.fit(X_train, y_train)
-
-# 6. Evaluation
-y_pred = model.predict(X_val)
-print("--- Validation Metrics ---")
-print(f"Accuracy: {accuracy_score(y_val, y_pred):.4f}")
+# 5. Evaluate
+y_pred = best_model.predict(X_val)
+print("\n--- Final Evaluation Report ---")
 print(classification_report(y_val, y_pred))
 
-# 7. Final Predictions for Kaggle/Submission
-predictions = model.predict(test_df)
-output = pd.DataFrame({'PassengerId': test_passenger_ids, 'Survived': predictions})
-output.to_csv('submission.csv', index=False)
-print("Submission file saved as submission.csv")
+# 6. Generate Submission
+final_preds = best_model.predict(test_df)
+pd.DataFrame({
+    'PassengerId': test_ids, 
+    'Survived': final_preds
+}).to_csv('submission.csv', index=False)
+
+print("Success! submission.csv created.")
